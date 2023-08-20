@@ -1,5 +1,5 @@
-import torch.nn as nn 
 import torch
+import torch.nn
 
 class linear(nn.Module):
 
@@ -22,8 +22,7 @@ class linear(nn.Module):
         par = nn.Parameter(par)
 
         return par
-    
-    
+
     def __init__(self , in_features , out_features):
         
         super().__init__()
@@ -40,9 +39,21 @@ class linear(nn.Module):
         
         self.layer.weight = self.parameter
         
+        self.par = torch.concat([self.in_col , self.out_col])
+        
+        self.parameter = self.merge(self.in_col , self.out_col)
+        
 #     def __call__(self , in_features , out_features):return self.layer
     
-    def forward(self , inps):
+    def forward(self , inps , param):
+        
+        self.in_col = param[: self.in_features]
+        self.out_col = param[self.out_features :]
+        
+        self.parameter = self.merge(self.in_col , self.out_col)
+        
+        self.layer.weight = self.parameter
+        
         return self.layer(inps)
     
 #     def weight(self): return self.layer.parameters
