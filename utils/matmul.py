@@ -1,3 +1,5 @@
+import torch
+
 def matmul(arr : Tuple , arr_ : Tuple) -> torch.tensor : 
     
     f_row = arr[0]
