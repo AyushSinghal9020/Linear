@@ -1,29 +1,34 @@
 import torch
 
-def matmul(arr : Tuple , arr_ : Tuple) -> torch.tensor : 
+def matmul(arr : tuple , arr_ : tuple) -> torch.tensor : 
     
     f_row = arr[0]
     f_col = arr[1]
 
-    s_row = arr[0]
-    s_col = arr[1]
-
-    if f_col != s_row: raise ValueError('Matrices with shape (' , f_row , 'x' , f_col , ') and (' , s_row , 'x' , s_col , 'cannot be multiplied')
+    s_row = arr_[0]
+    s_col = arr_[1]
+    
+    if type(f_row) != torch.tensor: torch.tensor(f_row)
+    if type(f_col) != torch.tensor: torch.tensor(f_col)
+    if type(s_row) != torch.tensor: torch.tensor(s_row)
+    if type(s_col) != torch.tensor: torch.tensor(s_col)
+    
+    if f_col.shape[0] != s_row.shape[0]: raise ValueError('Matrices with shape (' , f_row , 'x' , f_col , ') and (' , s_row , 'x' , s_col , 'cannot be multiplied')
     else :
             
-        first_elem = sum([
-            f_row[0] * f_col[s_index] * s_col[0] * s_row[f_index]
-            for f_index , s_index 
-            in zip(range(f_row.shape[0]) , range(s_row.shape[0]))])
+        val =sum([
+            (f_col[index] * s_row[index]) / 2
+            for index
+            in range(f_row.shape[0])])
 
-        mat = torch.empty((f_row.shape[0] , s_row.shape[0]))
+        row = [
+            s_row[index] * val
+            for index 
+            in range(s_row.shape[0])]
 
-        mat[0][0] = first_elem
+        col = [
+            s_col[index] * 2
+            for index 
+            in range(s_col.shape[0])]
 
-        for f_index in range(s_row.shape[0]):
-
-            for s_index in range(f_row.shape[0]):
-
-                mat[s_index][f_index] = first_elem / s_col[0] * f_row[f_index] * s_col[s_index]
-                
-        return mat
+        return torch.concat([torch.tensor(row) , torch.tensor(col)])
