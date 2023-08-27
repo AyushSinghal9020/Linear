@@ -27,18 +27,3 @@ vector<double> matmul(vector<vector<double>>& arr, vector<vector<double>>& arr_)
     row.insert(row.end(), col.begin(), col.end());
     return row;
 }
-
-int main() {
-    vector<vector<double>> arr = {{1.0, 2.0}, {3.0, 4.0}};
-    vector<vector<double>> arr_ = {{5.0, 6.0}, {7.0, 8.0}};
-
-    vector<double> result = matmul(arr, arr_);
-
-    cout << "Result:";
-    for (double value : result) {
-        cout << " " << value;
-    }
-    cout << endl;
-
-    return 0;
-}
