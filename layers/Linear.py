@@ -1,27 +1,54 @@
-def matmul(arr : Tuple , arr_ : Tuple) -> torch.tensor : 
+class linear(nn.Module):
+
+    def formula(self , val_1 , val_2): return torch.sin(val_1) * torch.sqrt(1 - torch.square(val_2))
+
+    def merge(self , in_features , out_features):
+
+        par = torch.empty(
+            (out_features.shape[0] , in_features.shape[0]))
+
+        for row in range(out_features.shape[0]):
+
+            for col in range(in_features.shape[0]):
+
+                val_1 = out_features[row]
+                val_2 = in_features[col]
+
+                par[row][col] = self.formula(val_1 , val_2)
+
+        par = nn.Parameter(par)
+
+        return par
+
+    def __init__(self , in_features , out_features):
+        
+        super().__init__()
+        
+        self.in_features = in_features
+        self.out_features = out_features
+        
+        self.layer = nn.Linear(self.in_features , self.out_features)
+        
+        self.in_col = torch.rand(self.in_features)
+        self.out_col = torch.rand(self.out_features)
+        
+        self.parameter = self.merge(self.in_col , self.out_col)
+        
+        self.layer.weight = self.parameter
+        
+        self.par = nn.Parameter(torch.concat([self.in_col , self.out_col]))
+        
+        self.parameter = self.merge(self.in_col , self.out_col)
     
-    f_row = arr[0]
-    f_col = arr[1]
-
-    s_row = arr[0]
-    s_col = arr[1]
-
-    if f_col != s_row: raise ValueError('Matrices with shape (' , f_row , 'x' , f_col , ') and (' , s_row , 'x' , s_col , 'cannot be multiplied')
-    else :
-            
-        first_elem = sum([
-            f_row[0] * f_col[s_index] * s_col[0] * s_row[f_index]
-            for f_index , s_index 
-            in zip(range(f_row.shape[0]) , range(s_row.shape[0]))])
-
-        mat = torch.empty((f_row.shape[0] , s_row.shape[0]))
-
-        mat[0][0] = first_elem
-
-        for f_index in range(s_row.shape[0]):
-
-            for s_index in range(f_row.shape[0]):
-
-                mat[s_index][f_index] = first_elem / s_col[0] * f_row[f_index] * s_col[s_index]
-                
-        return mat
+    def forward(self , inps):
+        
+        self.in_col = self.par[: self.in_features]
+        self.out_col = self.par[self.out_features :]
+        
+        self.parameter = self.merge(self.in_col , self.out_col)
+        
+        self.layer.weight = self.parameter
+        
+        del self.parameter
+        
+        return self.layer(inps)
