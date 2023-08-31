@@ -22,9 +22,9 @@ def matmul(arr : tuple , arr_ : tuple) -> torch.tensor :
             in range(f_row.shape[0])])
 
         row = [
-            s_row[index] * val
+            f_row[index] * val
             for index 
-            in range(s_row.shape[0])]
+            in range(f_row.shape[0])]
 
         col = [
             s_col[index] * 2
