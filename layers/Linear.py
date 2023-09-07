@@ -1,24 +1,7 @@
+import torch 
+import torch.nn as nn 
+
 class linear(nn.Module):
-
-    def formula(self , val_1 , val_2): return torch.sin(val_1) * torch.sqrt(1 - torch.square(val_2))
-
-    def merge(self , in_features , out_features):
-
-        par = torch.empty(
-            (out_features.shape[0] , in_features.shape[0]))
-
-        for row in range(out_features.shape[0]):
-
-            for col in range(in_features.shape[0]):
-
-                val_1 = out_features[row]
-                val_2 = in_features[col]
-
-                par[row][col] = self.formula(val_1 , val_2)
-
-        par = nn.Parameter(par)
-
-        return par
 
     def __init__(self , in_features , out_features):
         
@@ -27,28 +10,34 @@ class linear(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
         
+        self.expected_size = 1
+        
         self.layer = nn.Linear(self.in_features , self.out_features)
         
         self.in_col = torch.rand(self.in_features)
         self.out_col = torch.rand(self.out_features)
         
-        self.parameter = self.merge(self.in_col , self.out_col)
-        
-        self.layer.weight = self.parameter
-        
-        self.par = nn.Parameter(torch.concat([self.in_col , self.out_col]))
-        
-        self.parameter = self.merge(self.in_col , self.out_col)
-    
     def forward(self , inps):
         
-        self.in_col = self.par[: self.in_features]
-        self.out_col = self.par[self.out_features :]
+        if len(inps.shape) == self.expected_size + 1:
+            
+            return_val = [
+                mat(
+                    self.in_col.detach().numpy().tolist() , 
+                    val.detach().numpy().tolist() , 
+                    self.in_col.detach().numpy().tolist() , 
+                    self.out_col.detach().numpy().tolist()
+                )[1].detach().numpy().tolist()
+                for val 
+                in inps]
+            
+            return torch.tensor(return_val)
+
+        return_val = mat(
+            self.in_col.detach().numpy().tolist() , 
+            inps.detach().numpy().tolist() , 
+            self.in_col.detach().numpy().tolist() , 
+            self.out_col.detach().numpy().tolist()
+        )[1]
         
-        self.parameter = self.merge(self.in_col , self.out_col)
-        
-        self.layer.weight = self.parameter
-        
-        del self.parameter
-        
-        return self.layer(inps)
+        return return_val
