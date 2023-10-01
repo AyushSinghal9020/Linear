@@ -1,34 +1,28 @@
-import torch
+import numpy as np 
 
-def matmul(arr : tuple , arr_ : tuple) -> torch.tensor : 
+def convertor(val , return_val = None):
+
+    if isinstance(val , list) or isinstance(val , np.ndarray):
     
-    f_row = arr[0]
-    f_col = arr[1]
-
-    s_row = arr_[0]
-    s_col = arr_[1]
+        if return_val : 
+            if isinstance(val , list): val = np.array(val)
+        else : 
+            if isinstance(val , np.ndarray) : val = val.tolist()
     
-    if type(f_row) != torch.tensor: torch.tensor(f_row)
-    if type(f_col) != torch.tensor: torch.tensor(f_col)
-    if type(s_row) != torch.tensor: torch.tensor(s_row)
-    if type(s_col) != torch.tensor: torch.tensor(s_col)
-    
-    if f_col.shape[0] != s_row.shape[0]: raise ValueError('Matrices with shape (' , f_row , 'x' , f_col , ') and (' , s_row , 'x' , s_col , 'cannot be multiplied')
-    else :
-            
-        val =sum([
-            (f_col[index] * s_row[index]) / 2
-            for index
-            in range(f_row.shape[0])])
+    else : raise ValueError(f'Cannot process inputs of type {type(val)}, pass a numpy.ndarray or python list only')
 
-        row = [
-            f_row[index] * val
-            for index 
-            in range(f_row.shape[0])]
+    return val
 
-        col = [
-            s_col[index] * 2
-            for index 
-            in range(s_col.shape[0])]
+def matmul(f_row , f_col , s_row , s_col):
 
-        return torch.concat([torch.tensor(row) , torch.tensor(col)])
+    if len(f_col) != len(s_row) : raise ValueError(f'Cannot multiply array with dimensions {len(f_row)}x{len(f_col)} , {len(s_row)}x{len(s_col)}')
+
+    f_row = convertor(f_row , return_val = True)
+    f_col = convertor(f_col , return_val = True)
+    s_row = convertor(s_row , return_val = True)
+    s_col = convertor(s_col , return_val = True)
+
+    val = sum(f_col * s_row / 2)
+    col = s_col * val
+
+    return col
